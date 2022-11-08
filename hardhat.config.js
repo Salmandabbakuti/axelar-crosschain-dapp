@@ -35,31 +35,6 @@ task("balance", "Prints an account's balance")
 
 
 module.exports = {
-  defaultNetwork: "local",
-  networks: {
-    hardhat: {
-      chainId: 1337
-    },
-    local: {
-      url: "http://127.0.0.1:8545",
-    },
-    main: {
-      url: process.env.ETHEREUM_MAINNET_RPC_URL,
-      accounts: accounts
-    },
-    goerli: {
-      url: process.env.GOERLI_RPC_URL,
-      accounts // private keys
-    },
-    polygonTest: {
-      url: process.env.POLYGON_MUMBAI_RPC_URL,
-      accounts
-    },
-    polygonMain: {
-      url: process.env.POLYGON_MAINNET_RPC_URL,
-      accounts
-    }
-  },
   solidity: {
     version: "0.8.16",
     settings: {

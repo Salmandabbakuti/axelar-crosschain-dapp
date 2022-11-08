@@ -1,6 +1,8 @@
-# hardhat-boilerplate
+# axelar-crosschain-dapp
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts with balances.
+This project demonstrates a basic crosschain interoperability using axelar network. Axelar delivers secure cross-chain communication. That means that Web3 developers can create dApps that can interact with any asset, any application, on any chain, with one click. You can think of it as Stripe for Web3.
+
+> In this project we will be sending message to the smartcontract on avalanche chain from moonbeam chain.
 
 > Rename `env.example` to `.env` and add your env specific keys.
 
@@ -9,21 +11,11 @@ Try running some of the following tasks:
 ```shell
 yarn install
 
-yarn hardhat node # starts local node
+yarn hardhat contracts:compile # compiles contracts
 
-yarn hardhat accounts # list accounts with balances
+yarn contracts:deploy # deploys contracts
 
-yarn hardhat balance --account '0x47a9...' # show balance eth of specified account
-
-yarn hardhat compile # compiles contracts
-
-yarn hardhat deploy --network local # deploys contract defined in tasks on specified network
-
-yarn hardhat run --network local scripts/deploy.js # deploys contract in scripts/deploy.js
-
-yarn hardhat test # runs tests
-
-yarn hardhat clean # removes all compiled and deployed artifacts
+yarn hardhat contracts:execute # executes contract functionality
 
 yarn hardhat help # shows help
 ```
