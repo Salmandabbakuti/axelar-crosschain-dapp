@@ -4,6 +4,8 @@ This project demonstrates a basic crosschain interoperability using axelar netwo
 
 > In this project we will be sending message to the smartcontract on avalanche chain from moonbeam chain.
 
+![Demo](https://github.com/Salmandabbakuti/axelar-crosschain-dapp/blob/main/screenshot.png)
+
 > Rename `env.example` to `.env` and add your env specific keys.
 
 Try running some of the following tasks:
