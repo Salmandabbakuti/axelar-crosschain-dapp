@@ -5,7 +5,9 @@
     "gateway": "0x5769D84DD62a6fD969856c75c7D321b84d455929",
     "rpc": "https://moonbeam-alpha.api.onfinality.io/public",
     "gasReceiver": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-    "messageSender": "0x7d9daBF118482B47ea6D900f0221aB1ECDb19a7a"
+    "messageSender": "0x7d9daBF118482B47ea6D900f0221aB1ECDb19a7a",
+    "crossPaymentBridgeAddress": "0xDe1EdD357001273Cd6415B225831bf636d0Ac710",
+    "usdcContractAddress": "0xD1633F7Fb3d716643125d6415d4177bC36b7186b"
   },
   {
     "name": "Avalanche",
@@ -13,6 +15,8 @@
     "rpc": "https://api.avax-test.network/ext/bc/C/rpc",
     "gateway": "0xC249632c2D40b9001FE907806902f63038B737Ab",
     "gasReceiver": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-    "messageReceiver": "0x83A0B81D42AC6d9AeD9b0ECa9D1bda398f3481e7"
+    "messageReceiver": "0x83A0B81D42AC6d9AeD9b0ECa9D1bda398f3481e7",
+    "crossPaymentBridgeAddress": "0xa6200236fe0Ddb1d49838165f2e066e48e815441",
+    "usdcContractAddress": "0x57F1c63497AEe0bE305B8852b354CEc793da43bB"
   }
 ]

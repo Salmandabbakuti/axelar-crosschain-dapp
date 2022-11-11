@@ -9,35 +9,34 @@ const wallet = new Wallet(process.env.PRIV_KEY);
 const moonbeamChain = chains[0];
 const avalancheChain = chains[1];
 
-const MessageSenderContract = require("../artifacts/contracts/MessageSender.sol/MessageSender.json");
-const MessageReceiverContract = require("../artifacts/contracts/MessageReceiver.sol/MessageReceiver.json");
+const CrossPaymentBridgeContractFactory = require("../artifacts/contracts/CrossPaymentBridge.sol/CrossPaymentBridge.json");
 
 async function main() {
   // deploy sender contract on moonbeam
   const moonbeamProvider = getDefaultProvider(moonbeamChain.rpc);
   const moonbeamConnectedWallet = wallet.connect(moonbeamProvider);
-  const mmonbeamSenderContract = await deployContract(
+  const moonbeamCrossPaymentBridgeContract = await deployContract(
     moonbeamConnectedWallet,
-    MessageSenderContract,
+    CrossPaymentBridgeContractFactory,
     [moonbeamChain.gateway, moonbeamChain.gasReceiver]
   );
 
-  await mmonbeamSenderContract.deployed();
-  console.log("Sender contract deployed to moonbeam at: ", mmonbeamSenderContract.address);
+  await moonbeamCrossPaymentBridgeContract.deployed();
+  console.log("Cross Payment Bridge contract deployed to moonbeam at: ", moonbeamCrossPaymentBridgeContract.address);
 
-  moonbeamChain.messageSender = mmonbeamSenderContract.address;
+  moonbeamChain.crossPaymentBridgeAddress = moonbeamCrossPaymentBridgeContract.address;
 
   const avalancheProvider = getDefaultProvider(avalancheChain.rpc);
   const avalancheConnectedWallet = wallet.connect(avalancheProvider);
-  const avalancheContract = await deployContract(
+  const avalancheCrossPaymentBridgeContract = await deployContract(
     avalancheConnectedWallet,
-    MessageReceiverContract,
+    CrossPaymentBridgeContractFactory,
     [avalancheChain.gateway, avalancheChain.gasReceiver]
   );
 
-  await avalancheContract.deployed();
-  console.log("Receiver contract deployed to avalanche at: ", avalancheContract.address);
-  avalancheChain.messageReceiver = avalancheContract.address;
+  await avalancheCrossPaymentBridgeContract.deployed();
+  console.log("Cross Payment Bridge contract deployed to avalanche at: ", avalancheCrossPaymentBridgeContract.address);
+  avalancheChain.crossPaymentBridgeAddress = avalancheCrossPaymentBridgeContract.address;
 
   // update chains
   const updatedChains = [moonbeamChain, avalancheChain];

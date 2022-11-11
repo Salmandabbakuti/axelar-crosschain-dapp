@@ -8,8 +8,8 @@ const wallet = new Wallet(process.env.PRIV_KEY);
 const moonbeamChain = chains[0];
 const avalancheChain = chains[1];
 
-const MessageSenderContract = require("../artifacts/contracts/MessageSender.sol/MessageSender.json");
-const MessageReceiverContract = require("../artifacts/contracts/MessageReceiver.sol/MessageReceiver.json");
+const CrossPaymentBridgeContractFactory = require("../artifacts/contracts/CrossPaymentBridge.sol/CrossPaymentBridge.json");
+const IERC20 = require('../artifacts/@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IERC20.sol/IERC20.json');
 
 const getGasFee = async (
   sourceChainName,
@@ -25,38 +25,51 @@ async function main() {
   const moonbeamProvider = getDefaultProvider(moonbeamChain.rpc);
   const moonbeamConnectedWallet = wallet.connect(moonbeamProvider);
   const avalancheProvider = getDefaultProvider(avalancheChain.rpc);
-  const messageToSend = "Hello from Moonbeam";
+  const tokenSymbol = "aUSDC";
+  const receiver = "0xc7203561EF179333005a9b81215092413aB86aE9";
+  const amount = 2000000; // 2 aUSDC
+  const note = "A Gift from fella Web3 Dev";
 
-  const senderContract = new Contract(moonbeamChain.messageSender, MessageSenderContract.abi, moonbeamConnectedWallet);
-  const receiverContract = new Contract(avalancheChain.messageReceiver, MessageReceiverContract.abi, avalancheProvider);
-  const message1 = await receiverContract.message();
+  const moonbeamCrossPaymentBridgeContract = new Contract(moonbeamChain.crossPaymentBridgeAddress, CrossPaymentBridgeContractFactory.abi, moonbeamConnectedWallet);
+  const avalancheCrossPaymentBridgeContract = new Contract(avalancheChain.crossPaymentBridgeAddress, CrossPaymentBridgeContractFactory.abi, avalancheProvider);
+  const moonbeamUSDCContract = new Contract(moonbeamChain.usdcContractAddress, IERC20.abi, moonbeamConnectedWallet);
+  const avalancheUSDCContract = new Contract(avalancheChain.usdcContractAddress, IERC20.abi, avalancheProvider);
 
-  console.log("Message on avalanche before: ", message1);
-  console.log("Sending message from moonbeam to avalanche");
+  console.log(`Sending Payment of ${amount / 1000000} ${tokenSymbol} to ${receiver} from moonbeam to avalanche`);
   const gasFee = await getGasFee(EvmChain.MOONBEAM, EvmChain.AVALANCHE, GasToken.MOONBEAM);
   console.log("Gas fee: ", gasFee);
-  const sendMessagTx = await senderContract.sendMessage(
+
+  // approve usdc allowance to bridge on moonbeam
+  const approveTx = await moonbeamUSDCContract.approve(moonbeamChain.crossPaymentBridgeAddress, amount);
+  await approveTx.wait();
+
+  // get allowances of bridge contract to spend usdc
+  const allowance = await moonbeamUSDCContract.allowance(moonbeamConnectedWallet.address, moonbeamChain.crossPaymentBridgeAddress);
+  console.log(`${tokenSymbol} Allowance available to moonbeam bridge address: ${allowance.toString()}`);
+
+  const sendPaymentTx = await moonbeamCrossPaymentBridgeContract.sendTokensWithNote(
     "Avalanche",
-    avalancheChain.messageReceiver,
-    messageToSend,
+    avalancheChain.crossPaymentBridgeAddress,
+    tokenSymbol,
+    amount,
+    receiver,
+    note,
     {
-      value: gasFee
+      value: BigInt(4e17),
+      gasLimit: 3e6
     }
   );
-  await sendMessagTx.wait();
+  await sendPaymentTx.wait();
 
-  console.log("Transaction submitted", sendMessagTx.hash);
+  console.log("Transaction submitted", sendPaymentTx.hash);
 
-  await new Promise((reject, resolve) => {
-    receiverContract.on("Executed", (from, value) => {
-      console.log("Received an event on avalanche: ", from, value);
-      if (value === messageToSend) receiverContract.removeAllListeners("Executed");
-      resolve();
-    });
-  });
+  // check reciever payments
+  const userPayments = await avalancheCrossPaymentBridgeContract.payments(receiver, 0);
+  console.log("User Payments: ", userPayments);
 
-  const message2 = await receiverContract.message();
-  console.log("Message on avalanche after transaction: ", message2);
+  // check user's aUSDC balance on avalanche
+  const userBalance = await avalancheUSDCContract.balanceOf(receiver);
+  console.log(`${tokenSymbol} Balance of ${receiver} on avalanche chain: ${userBalance.toString()}`);
 }
 
 main().then(() => {
